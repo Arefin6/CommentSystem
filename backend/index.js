@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
-// const connectDB = require('./config/db');
+const connectDB = require("./config/db");
 // const authRoutes = require('./routes/auth');
 // const commentRoutes = require('./routes/comments');
 
@@ -18,7 +18,7 @@ const app = express();
 // });
 
 // connect DB
-//connectDB(process.env.MONGO_URI);
+connectDB(process.env.MONGO_URI);
 
 // middlewares
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
