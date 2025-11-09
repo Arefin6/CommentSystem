@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
-// const commentRoutes = require('./routes/comments');
+const commentRoutes = require("./routes/comment");
 
 const app = express();
 // const server = http.createServer(app);
@@ -31,7 +31,7 @@ app.use(express.json());
 
 // routes
 app.use("/api/auth", authRoutes);
-//app.use('/api/comments', commentRoutes);
+app.use("/api/comments", commentRoutes);
 
 // io.on('connection', (socket) => {
 //   console.log('socket connected', socket.id);
