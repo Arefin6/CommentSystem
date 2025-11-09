@@ -1,9 +1,10 @@
 require("dotenv").config();
 const express = require("express");
-const http = require("http");
+const bodyParser = require("body-parser");
+// const http = require("http");
 const cors = require("cors");
 const connectDB = require("./config/db");
-// const authRoutes = require('./routes/auth');
+const authRoutes = require("./routes/auth");
 // const commentRoutes = require('./routes/comments');
 
 const app = express();
@@ -22,13 +23,14 @@ connectDB(process.env.MONGO_URI);
 
 // middlewares
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
+app.use(bodyParser.json());
 app.use(express.json());
 
 // attach io to req for controllers to emit
 //app.use((req,res,next)=>{ req.io = io; next(); });
 
 // routes
-//app.use('/api/auth', authRoutes);
+app.use("/api/auth", authRoutes);
 //app.use('/api/comments', commentRoutes);
 
 // io.on('connection', (socket) => {
