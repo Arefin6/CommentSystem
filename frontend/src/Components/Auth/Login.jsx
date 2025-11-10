@@ -1,15 +1,31 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../../Contexts/AuthContext";
+import { loginSchema } from "../../schemas/validation";
 
 const Login = () => {
   const { login, loading } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Client-side validation
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      // Convert Zod errors into object: { fieldName: message }
+      const formattedErrors = {};
+
+      result.error.issues.forEach((err) => {
+        formattedErrors[err.path[0]] = err.message;
+      });
+      setErrors(formattedErrors);
+      return;
+    }
+    setErrors({}); // clear previous errors
+
     await login(email, password);
     navigate("/");
   };
@@ -31,9 +47,15 @@ const Login = () => {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className={`w-full rounded-lg border px-4 py-2 outline-none ${
+                errors.email
+                  ? "border-red-500 focus:ring-2 focus:ring-red-400"
+                  : "border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              }`}
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           <div>
@@ -45,14 +67,20 @@ const Login = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className={`w-full rounded-lg border px-4 py-2 outline-none ${
+                errors.password
+                  ? "border-red-500 focus:ring-2 focus:ring-red-400"
+                  : "border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              }`}
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            //disabled={loading}
             className={`w-full py-2.5 text-white font-semibold rounded-lg transition ${
               loading
                 ? "bg-blue-400 cursor-not-allowed"

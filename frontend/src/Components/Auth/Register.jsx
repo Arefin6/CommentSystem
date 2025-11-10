@@ -20,8 +20,8 @@ const Register = () => {
     if (!result.success) {
       // Convert Zod errors into object: { fieldName: message }
       const formattedErrors = {};
-      // console.log(result.error.message);
-      result.error.message.forEach((err) => {
+
+      result.error.issues.forEach((err) => {
         formattedErrors[err.path[0]] = err.message;
       });
       setErrors(formattedErrors);
