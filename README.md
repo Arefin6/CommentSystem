@@ -66,7 +66,22 @@ npm  install
 
 
 3️⃣ Create .env file
+```
+touch .env
+```
+4️⃣ Add the following variables
+```
+# Server
+PORT=5000
 
-touch .envZod for form validation
+# MongoDB Connection
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/comments
+
+# JWT Secret
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN = 7d
+```
+5️⃣ Run the server
+
 
 Clean component architecture
