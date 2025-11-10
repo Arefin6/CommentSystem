@@ -112,7 +112,7 @@ exports.deleteComment = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
 
     // Optionally: cascade delete replies or mark as deleted. Here we remove.
-    await comment.remove();
+    await comment.deleteOne();
     //if (req.io) req.io.emit("comment:deleted", { id });
     res.json({ message: "Deleted" });
   } catch (err) {
@@ -180,7 +180,7 @@ exports.toggleDislike = async (req, res) => {
       comment.dislikes.push({ user: userId });
     }
     await comment.save();
-    await comment.populate("author", "name email").execPopulate();
+    await comment.populate("author", "name email");
 
     if (req.io)
       req.io.emit("comment:disliked", {
