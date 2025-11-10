@@ -82,6 +82,15 @@ export const CommentsProvider = ({ children }) => {
     setComments((prev) => prev.filter((c) => c._id !== id));
   };
 
+  const updateComment = async (id, content) => {
+    const res = await API.put(`/comments/update/${id}`, { content });
+    const updated = res.data;
+
+    setComments((prev) =>
+      prev.map((c) => (c._id === id ? { ...c, content: updated.content } : c))
+    );
+  };
+
   return (
     <CommentsContext.Provider
       value={{
@@ -89,6 +98,7 @@ export const CommentsProvider = ({ children }) => {
         meta,
         sortBy,
         setSortBy,
+        updateComment,
         fetchComments,
         addComment,
         like,
