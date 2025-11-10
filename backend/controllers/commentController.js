@@ -38,7 +38,7 @@ exports.getComments = async (req, res) => {
     // sorting: likes, dislikes, newest
     const sortBy = req.query.sortBy || "newest";
     let sort = { createdAt: -1 };
-    if (sortBy === "mostLiked") sort = { "likes.length": -1, createdAt: -1 };
+    if (sortBy === "mostLiked") sort = { "likes.length": 1, createdAt: 1 };
     if (sortBy === "mostDisliked")
       sort = { "dislikes.length": -1, createdAt: -1 };
 

@@ -3,6 +3,7 @@ import { CommentsContext } from "../../Contexts/CommentsContext";
 import CommentItem from "./CommentItem";
 import CommentForm from "./CommentForm";
 import SortBar from "./Sortbar";
+import Pagination from "../Pagination";
 
 const CommentList = () => {
   const { comments, fetchComments } = useContext(CommentsContext);
@@ -48,6 +49,8 @@ const CommentList = () => {
           </p>
         )}
       </div>
+      {/* Pagination */}
+      <Pagination />
     </div>
   );
 };

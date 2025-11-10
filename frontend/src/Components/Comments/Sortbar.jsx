@@ -39,7 +39,7 @@ const SortBar = () => {
         <button
           onClick={() => setSortBy("mostLiked")}
           className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition ${
-            sortBy === "likes"
+            sortBy === "mostLiked"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
@@ -51,7 +51,7 @@ const SortBar = () => {
         <button
           onClick={() => setSortBy("mostDisliked")}
           className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition ${
-            sortBy === "dislikes"
+            sortBy === "mostDisliked"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}

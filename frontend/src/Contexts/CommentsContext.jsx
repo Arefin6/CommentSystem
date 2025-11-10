@@ -7,7 +7,12 @@ export const CommentsContext = createContext();
 
 export const CommentsProvider = ({ children }) => {
   const [comments, setComments] = useState([]);
-  const [meta, setMeta] = useState({ page: 1, limit: 10, total: 0 });
+  const [meta, setMeta] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
   const [sortBy, setSortBy] = useState("newest");
 
   //   useEffect(() => {
@@ -29,9 +34,9 @@ export const CommentsProvider = ({ children }) => {
   //     return () => socket.disconnect();
   //   }, []);
 
-  const fetchComments = async (page = 1, sort = sortBy) => {
+  const fetchComments = async (page = 1, limit = 10, sort = sortBy) => {
     const res = await API.get("/comments", {
-      params: { page, sortBy: sort },
+      params: { page, limit, sortBy: sort },
     });
     setComments(res.data.data);
     setMeta(res.data.meta);
