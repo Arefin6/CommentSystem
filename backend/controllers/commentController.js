@@ -30,55 +30,83 @@ exports.createComment = async (req, res) => {
 
 exports.getComments = async (req, res) => {
   try {
-    // pagination
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 10, 50);
     const skip = (page - 1) * limit;
 
-    // sorting: likes, dislikes, newest
     const sortBy = req.query.sortBy || "newest";
-    let sort = { createdAt: -1 };
-    if (sortBy === "mostLiked") sort = { "likes.length": 1, createdAt: 1 };
-    if (sortBy === "mostDisliked")
-      sort = { "dislikes.length": -1, createdAt: -1 };
-
-    // optional parent filter to get replies
     const parent = req.query.parent || null;
     const filter = parent ? { parent } : { parent: null };
 
-    // For counts and pagination use aggregation for likes/dislikes length
-    const comments = await Comment.find(filter)
-      .populate("author", "name email")
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    let sort = {};
+    if (sortBy === "newest") sort = { createdAt: -1 };
+    else if (sortBy === "mostLiked") sort = { likesCount: -1, createdAt: -1 };
+    else if (sortBy === "mostDisliked")
+      sort = { dislikesCount: -1, createdAt: -1 };
 
-    // attach counts and whether current user liked/disliked
-    const userId = req.user ? req.user._id.toString() : null;
-    const result = comments.map((c) => {
-      const likesCount = (c.likes || []).length;
-      const dislikesCount = (c.dislikes || []).length;
-      return {
-        ...c,
-        likesCount,
-        dislikesCount,
-        likedByMe: userId
-          ? (c.likes || []).some((v) => v.user.toString() === userId)
-          : false,
-        dislikedByMe: userId
-          ? (c.dislikes || []).some((v) => v.user.toString() === userId)
-          : false,
-      };
-    });
+    // Aggregation to calculate likes/dislikes count
+    const pipeline = [
+      { $match: filter },
+      {
+        $addFields: {
+          likesCount: { $size: { $ifNull: ["$likes", []] } },
+          dislikesCount: { $size: { $ifNull: ["$dislikes", []] } },
+        },
+      },
+      { $sort: sort },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author",
+        },
+      },
+      {
+        $unwind: "$author",
+      },
+      {
+        $project: {
+          content: 1,
+          author: { name: 1, email: 1, _id: 1 },
+          createdAt: 1,
+          likesCount: 1,
+          dislikesCount: 1,
+          likes: 1,
+          dislikes: 1,
+        },
+      },
+    ];
+
+    const comments = await Comment.aggregate(pipeline);
 
     const total = await Comment.countDocuments(filter);
+    const userId = req.user ? req.user._id.toString() : null;
+
+    // Add liked/disliked flags for frontend
+    const result = comments.map((c) => ({
+      ...c,
+      likedByMe: userId
+        ? (c.likes || []).some((v) => v.user.toString() === userId)
+        : false,
+      dislikedByMe: userId
+        ? (c.dislikes || []).some((v) => v.user.toString() === userId)
+        : false,
+    }));
+
     res.json({
       data: result,
-      meta: { page, limit, totalPages: Math.ceil(total / limit), total },
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (err) {
-    console.error(err);
+    console.error("getComments error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
